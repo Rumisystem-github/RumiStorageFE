@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<HTML>
+	<HEAD>
+		<TITLE>Index of</TITLE>
+	</HEAD>
+	<BODY>
+		<H1>Index of <SPAN ID="HEADER_PATH"></SPAN></H1>
+
+		<TABLE ID="LIST">
+			<TR>
+				<TH></TH>
+				<TH>名前</TH>
+				<TH>作成日</TH>
+				<TH>最終更新日</TH>
+				<TH>サイズ</TH>
+				<TH>所有者</TH>
+			</TR>
+			<TR>
+				<TH COLSPAN="6"><HR></TH>
+			</TR>
+		</TABLE>
+	</BODY>
+
+	<SCRIPT SRC="/Script/API.js"></SCRIPT>
+	<SCRIPT>
+		const ACCOUNT_API = "https://account.rumiserver.com/api/";
+
+		let session = null;
+		let mel = {
+			PATH: document.getElementById("HEADER_PATH"),
+			LIST: document.getElementById("LIST")
+		};
+
+		main();
+
+		async function main() {
+			const query = new URLSearchParams(window.location.search);
+			if (query.get("P") == null) {
+				window.location.href = "/public.html?P=/";
+			}
+
+			const path = query.get("P");
+
+			//ヘッダーに
+			mel.PATH.innerText = path;
+			document.title = `Index of ${path}`;
+
+			const list = await get_directory(path);
+			for (let i = 0; i < list.length; i++) {
+				const entire = list[i];
+				let icon = "unknown";
+				if (entire.TYPE == "DIRECTORY") {
+					icon = "dir";
+				}
+
+				mel.LIST.appendChild(await gen_entire_item(entire, icon));
+			}
+		}
+
+		async function gen_entire_item(entrie, icon) {
+			let item = document.createElement("TR");
+
+			let icon_td = document.createElement("TD");
+			item.appendChild(icon_td);
+
+			let icon_img = document.createElement("IMG");
+			icon_img.src = `/icons/${icon}.png`;
+			icon_td.appendChild(icon_img);
+
+			let a = document.createElement("A");
+			a.href = `?P=${entrie.PATH}`;
+			a.innerText = entrie.PATH.split("/")[entrie.PATH.split("/").length - 1];
+
+			let name_td = document.createElement("TD");
+			name_td.appendChild(a);
+			item.appendChild(name_td);
+
+			let create_td = document.createElement("TD");
+			create_td.innerText = "0000/00/00 AM 00:00";
+			item.appendChild(create_td);
+
+			let update_td = document.createElement("TD");
+			update_td.innerText = "0000/00/00 AM 00:00";
+			item.appendChild(update_td);
+
+			let size_td = document.createElement("TD");
+			size_td.innerText = "--";
+			item.appendChild(size_td);
+
+			let owner_td = document.createElement("TD");
+			owner_td.innerText = "--";
+			item.appendChild(owner_td);
+
+			return item;
+		}
+	</SCRIPT>
+</HTML>
