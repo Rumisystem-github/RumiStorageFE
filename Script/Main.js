@@ -17,32 +17,29 @@ window.addEventListener("load", async (E) => {
 		//ログインする
 		self_user = await LOGIN(session);
 		if (self_user !== false) {
-			current_path = `/home/${self_user.ID}`;
-			refresh_path_display();
+			const path = new URLSearchParams(window.location.search).get("PATH")
+			if (path == null) {
+				await change_path(`/home/${self_user.ID}`);
+			} else {
+				await change_path(path);
+			}
 		} else {
 			window.location.href = LOGIN_PAGE;
 			return;
 		}
 	}
-
-	await reload_dir();
 });
 
 window.addEventListener("popstate", async (e)=>{
 	const path = new URLSearchParams(window.location.search).get("PATH");
 	if (path !== current_path) {
-		current_path = path;
-		refresh_path_display();
-		await reload_dir();
+		await change_path(path);
 	}
 });
 
 mel.path_diplay.addEventListener("keydown", async (e)=>{
 	if (e.key !== "Enter") return;
-
-	current_path = mel.path_diplay.value;
-	refresh_path_display();
-	await reload_dir();
+	await change_path(mel.path_diplay.value);
 });
 
 async function reload_dir() {
@@ -51,8 +48,18 @@ async function reload_dir() {
 	mel.dir_contents.innerHTML = "";
 	for (let i = 0; i < list.length; i++) {
 		const row = list[i];
-		mel.dir_contents.appendChild(await gen_dir_item(row));
+		if (row.TYPE === "DIRECTORY") {
+			mel.dir_contents.appendChild(await gen_dir_item(row));
+		} else {
+			mel.dir_contents.appendChild(await gen_file_item(row));
+		}
 	}
+}
+
+async function change_path(path) {
+	current_path = path;
+	refresh_path_display();
+	await reload_dir();
 }
 
 function refresh_path_display() {

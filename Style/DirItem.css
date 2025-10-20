@@ -1,0 +1,18 @@
+.DIR_ITEM{
+	width: 100px;
+	height: 100px;
+
+	display: flex;
+	flex-direction: column;
+}
+
+.DIR_ITEM > img{
+	width: 70px;
+	height: 70px;
+
+	margin: 0 auto;
+}
+
+.DIR_ITEM > div{
+	text-align: center;
+}
