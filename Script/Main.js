@@ -7,7 +7,12 @@ let session = null;
 let self_user = null;
 let current_path = "/";
 let mel = {
-	path_diplay: document.getElementById("PATH_DISPLAY"),
+	top_bar: {
+		path_diplay: document.getElementById("PATH_DISPLAY"),
+		button: {
+			up: document.getElementById("DIR_UP_BUTTON")
+		}
+	},
 	dir_contents: document.getElementById("DIR_CONTENTS")
 };
 
@@ -37,9 +42,23 @@ window.addEventListener("popstate", async (e)=>{
 	}
 });
 
-mel.path_diplay.addEventListener("keydown", async (e)=>{
+mel.top_bar.path_diplay.addEventListener("keydown", async (e)=>{
 	if (e.key !== "Enter") return;
 	await change_path(mel.path_diplay.value);
+});
+
+mel.top_bar.button.up.addEventListener("click", async (e)=>{
+	let path = current_path;
+
+	//語尾のスラッシュを削除
+	if (path.endsWith("/")) {
+		path = path.replace(/\/$/, "");
+	}
+
+	let path_split = path.split("/");
+	path_split.pop();
+
+	await change_path(path_split.join("/"));
 });
 
 async function reload_dir() {
@@ -63,7 +82,7 @@ async function change_path(path) {
 }
 
 function refresh_path_display() {
-	mel.path_diplay.value = current_path;
+	mel.top_bar.path_diplay.value = current_path;
 
 	if (decodeURIComponent(window.location.search) != "?PATH=" + current_path) {
 		history.pushState("", "", "?PATH=" + current_path);
